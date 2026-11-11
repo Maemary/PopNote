@@ -493,6 +493,59 @@ export async function getAlphabeticalPage(
 }
 
 
+// ---------- Series airing status ----------
+
+export type AiringStatus = 'ongoing' | 'completed' | 'canceled' | 'upcoming'
+
+export const AIRING_LABELS: Record<AiringStatus, string> = {
+  ongoing: 'Ongoing',
+  completed: 'Completed',
+  canceled: 'Canceled',
+  upcoming: 'Upcoming',
+}
+
+// TMDB's status words → our four groups
+export function toAiringStatus(tmdbStatus: string): AiringStatus | null {
+  switch (tmdbStatus) {
+    case 'Returning Series':
+      return 'ongoing'
+    case 'Ended':
+      return 'completed'
+    case 'Canceled':
+      return 'canceled'
+    case 'In Production':
+    case 'Planned':
+    case 'Pilot':
+      return 'upcoming'
+    default:
+      return null
+  }
+}
+
+// Remembered for the whole visit so each show is only looked up once
+const airingCache = new Map<number, AiringStatus | null>()
+
+export async function getAiringStatuses(
+  showIds: number[],
+): Promise<Record<number, AiringStatus | null>> {
+  const missing = showIds.filter((id) => !airingCache.has(id))
+
+  await Promise.all(
+    missing.map(async (id) => {
+      try {
+        const show = await tmdbFetch<{ status: string }>(`/tv/${id}`)
+        airingCache.set(id, toAiringStatus(show.status))
+      } catch {
+        airingCache.set(id, null)
+      }
+    }),
+  )
+
+  const result: Record<number, AiringStatus | null> = {}
+  for (const id of showIds) result[id] = airingCache.get(id) ?? null
+  return result
+}
+
 // ---------- Image helpers ----------
 
 export function posterUrl(
