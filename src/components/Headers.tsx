@@ -68,10 +68,12 @@ function Header() {
         <div className="account">
           {loading ? null : user ? (
             <>
-              <span className="account-email" title={user.email ?? ''}>
-                {user.email}
-              </span>
-              <button type="button" className="btn btn-ghost" onClick={handleSignOut}>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                title={`Signed in as ${user.email ?? ''}`}
+                onClick={handleSignOut}
+              >
                 Sign out
               </button>
             </>

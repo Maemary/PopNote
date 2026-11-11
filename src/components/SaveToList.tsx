@@ -11,6 +11,7 @@ import {
   type WatchlistItem,
 } from '../watchlist'
 import SaveForm from './SaveForm'
+import { BookmarkIcon, PencilIcon, TrashIcon } from './Icons'
 
 type SaveToListProps = {
   mediaType: MediaType
@@ -120,7 +121,7 @@ function SaveToList({ mediaType, tmdbId, title, posterPath, date }: SaveToListPr
 
   if (editing) {
     return (
-      <section className="save-box">
+      <section className="save-box save-box-panel">
         <h2>{hasNote ? 'Edit your note' : 'Add a note'}</h2>
         <p className="meta save-hint">
           Optional. Jot down why you saved it, so future you remembers.
@@ -144,11 +145,14 @@ function SaveToList({ mediaType, tmdbId, title, posterPath, date }: SaveToListPr
       <section className="save-box">
         <button
           type="button"
-          className="primary-button"
+          className="save-btn"
+          aria-label="Save to My List"
+          title="Save to My List"
           onClick={quickSave}
           disabled={saving}
         >
-          {saving ? 'Saving...' : '+ Save to My List'}
+          <BookmarkIcon />
+          <span className="btn-text">{saving ? 'Saving...' : 'Save to My List'}</span>
         </button>
       </section>
     )
@@ -156,11 +160,14 @@ function SaveToList({ mediaType, tmdbId, title, posterPath, date }: SaveToListPr
 
   return (
     <section className="save-box">
-      <div className="saved-head">
-        <span className="saved-badge">✓ Saved to My List</span>
+      <div className="saved-row">
+        <span className="saved-badge" title="Saved to My List">
+          <BookmarkIcon filled />
+          <span className="btn-text">Saved</span>
+        </span>
         <select
           aria-label="Status"
-          className="status-select"
+          className="saved-control"
           value={item.status}
           onChange={(event) => changeStatus(event.target.value as WatchStatus)}
         >
@@ -170,6 +177,26 @@ function SaveToList({ mediaType, tmdbId, title, posterPath, date }: SaveToListPr
             </option>
           ))}
         </select>
+        <button
+          type="button"
+          className="saved-control saved-icon-btn"
+          aria-label={hasNote ? 'Edit note' : 'Add a note'}
+          title={hasNote ? 'Edit note' : 'Add a note'}
+          onClick={() => setEditing(true)}
+        >
+          <PencilIcon />
+          <span className="btn-text">{hasNote ? 'Edit note' : 'Add note'}</span>
+        </button>
+        <button
+          type="button"
+          className="saved-remove saved-icon-btn"
+          aria-label="Remove from My List"
+          title="Remove from My List"
+          onClick={() => removeItem(user.uid, mediaType, tmdbId)}
+        >
+          <TrashIcon />
+          <span className="btn-text">Remove</span>
+        </button>
       </div>
 
       {item.reason && <p className="saved-reason">“{item.reason}”</p>}
@@ -198,19 +225,6 @@ function SaveToList({ mediaType, tmdbId, title, posterPath, date }: SaveToListPr
           ))}
         </p>
       )}
-
-      <div className="save-form-actions">
-        <button type="button" className="btn btn-ghost" onClick={() => setEditing(true)}>
-          {hasNote ? '✎ Edit note' : '✎ Add a note (optional)'}
-        </button>
-        <button
-          type="button"
-          className="link-button"
-          onClick={() => removeItem(user.uid, mediaType, tmdbId)}
-        >
-          Remove from list
-        </button>
-      </div>
     </section>
   )
 }

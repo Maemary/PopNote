@@ -81,18 +81,18 @@ function MovieDetailPage() {
             </p>
             <p className="meta">{movie.genres.map((g) => g.name).join(', ')}</p>
             <p>{movie.overview}</p>
+            <SaveToList
+              mediaType="movie"
+              tmdbId={movie.id}
+              title={movie.title}
+              posterPath={movie.poster_path}
+              date={movie.release_date}
+            />
           </div>
-        </div> 
+        </div>
 
-                <SaveToList
-          mediaType="movie"
-          tmdbId={movie.id}
-          title={movie.title}
-          posterPath={movie.poster_path}
-          date={movie.release_date}
-        /> 
-        
-                <WhereToWatch providers={providers} />
+        <WhereToWatch providers={providers} />
+
         {trailer && (
           <section>
             <h2>Trailer</h2>

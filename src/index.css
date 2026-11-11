@@ -470,7 +470,7 @@ a {
   margin: 0 auto;
   padding: 14px 24px;
   display: grid;
-  grid-template-columns: auto 1fr auto auto auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
   grid-template-areas: 'logo nav search account menu';
   align-items: center;
   column-gap: 28px;
@@ -499,6 +499,7 @@ a {
   flex-wrap: nowrap;
   align-items: center;
   gap: 2px;
+  min-width: 0;
 }
 
 .nav-home { --nav-color: #f2f2f5; }
@@ -1913,4 +1914,168 @@ a {
   font-size: 0.86rem;
   color: #c9c9d4;
   white-space: normal;
+}
+
+/* ---------- Saved controls on detail pages (one compact row) ---------- */
+
+.saved-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.saved-row .saved-badge {
+  padding: 6px 10px;
+  font-size: 0.82rem;
+}
+
+.saved-control {
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid #3a3a46;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.saved-control:hover {
+  border-color: #fbbf24;
+}
+
+.saved-remove {
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  border-radius: 999px;
+  background: rgba(248, 113, 113, 0.08);
+  color: #f87171;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.saved-remove:hover {
+  background: rgba(248, 113, 113, 0.18);
+}
+
+.saved-row + * {
+  margin-top: 12px;
+}
+
+
+
+/* ---------- My List filters ---------- */
+
+.mylist-filters {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.mylist-filters .filter-tabs {
+  margin-bottom: 0;
+}
+
+.tag-count {
+  margin-left: 4px;
+  opacity: 0.65;
+  font-size: 0.78rem;
+}
+
+/* ---------- Save controls under the description ---------- */
+
+.save-box {
+  margin-top: 18px;
+  padding: 0;
+  background: none;
+  max-width: 640px;
+}
+
+/* The note form keeps its own panel */
+.save-box.save-box-panel {
+  margin-top: 20px;
+  padding: 16px;
+  background: var(--surface);
+  border-radius: 10px;
+}
+
+.save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #fbbf24, #f97316);
+  color: #1a0f0a;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.saved-badge,
+.saved-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.saved-row .saved-badge {
+  height: 34px;
+  padding: 0 12px;
+  color: #6ee7b7;
+}
+
+/* Phones: icons only, all in one line */
+@media (max-width: 600px) {
+  .btn-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .save-btn {
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .save-btn svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .saved-row {
+    flex-wrap: nowrap;
+  }
+
+  .saved-row .saved-badge,
+  .saved-icon-btn {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .saved-row select.saved-control {
+    flex: 1;
+    min-width: 0;
+    height: 38px;
+  }
 }

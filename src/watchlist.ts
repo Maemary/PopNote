@@ -18,8 +18,8 @@ export type WatchStatus = 'want' | 'watching' | 'watched'
 
 export const STATUS_LABELS: Record<WatchStatus, string> = {
   want: 'Want to watch',
-  watching: 'Watching',
-  watched: 'Watched',
+  watching: 'Ongoing',
+  watched: 'Completed',
 }
 
 export const MOOD_TAGS = [

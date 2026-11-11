@@ -86,16 +86,16 @@ function TvDetailPage() {
             </p>
             <p className="meta">{show.genres.map((g) => g.name).join(', ')}</p>
             <p>{show.overview}</p>
+            <SaveToList
+              mediaType="tv"
+              tmdbId={show.id}
+              title={show.name}
+              posterPath={show.poster_path}
+              date={show.first_air_date}
+            />
           </div>
         </div>
 
-                <SaveToList
-          mediaType="tv"
-          tmdbId={show.id}
-          title={show.name}
-          posterPath={show.poster_path}
-          date={show.first_air_date}
-        />
 
         <WhereToWatch providers={providers} />
 
