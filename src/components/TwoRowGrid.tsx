@@ -7,7 +7,9 @@ type TwoRowGridProps = {
 }
 
 const MIN_CARD_WIDTH = 150
+const MIN_CARD_WIDTH_PHONE = 100
 const GAP = 16
+const GAP_PHONE = 10
 
 // Shows exactly two rows of cards, however wide the screen is
 function TwoRowGrid({ items }: TwoRowGridProps) {
@@ -20,7 +22,11 @@ function TwoRowGrid({ items }: TwoRowGridProps) {
 
     const observer = new ResizeObserver(([entry]) => {
       const width = entry.contentRect.width
-      setColumns(Math.max(2, Math.floor((width + GAP) / (MIN_CARD_WIDTH + GAP))))
+      // Phones fit 3 smaller posters per row instead of 2 big ones
+      const phone = width < 520
+      const min = phone ? MIN_CARD_WIDTH_PHONE : MIN_CARD_WIDTH
+      const gap = phone ? GAP_PHONE : GAP
+      setColumns(Math.max(3, Math.floor((width + gap) / (min + gap))))
     })
     observer.observe(element)
     return () => observer.disconnect()

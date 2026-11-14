@@ -8,8 +8,10 @@ import {
 import { useNavigate } from 'react-router'
 import {
   CATEGORY_LABELS,
+  getAiringStatuses,
   posterUrl,
   searchTitles,
+  type AiringStatus,
   type Category,
   type MediaItem,
 } from '../tmdb'
@@ -21,6 +23,38 @@ type SearchBoxProps = {
 type Suggestions = {
   key: string
   items: MediaItem[]
+  airing: Record<number, AiringStatus | null>
+}
+
+type ReleaseStatus = { label: string; tone: string }
+
+// "Released", "Coming 3 Mar 2027", "Ongoing", "Ended"...
+function releaseStatus(
+  item: MediaItem,
+  airing: Record<number, AiringStatus | null>,
+): ReleaseStatus | null {
+  if (item.mediaType === 'tv') {
+    switch (airing[item.id]) {
+      case 'ongoing':
+        return { label: 'Ongoing', tone: 'airing-ongoing' }
+      case 'completed':
+        return { label: 'Ended', tone: 'airing-completed' }
+      case 'canceled':
+        return { label: 'Canceled', tone: 'airing-canceled' }
+      case 'upcoming':
+        return { label: 'Upcoming', tone: 'airing-upcoming' }
+      default:
+        return null
+    }
+  }
+
+  if (!item.date) return { label: 'Date TBA', tone: 'airing-upcoming' }
+  const release = new Date(`${item.date}T00:00:00`)
+  if (release > new Date()) {
+    const when = release.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    return { label: `Coming ${when}`, tone: 'airing-upcoming' }
+  }
+  return { label: 'Released', tone: 'progress-watched' }
 }
 
 const MAX_SUGGESTIONS = 6
@@ -56,11 +90,15 @@ function SearchBox({ defaultCategory }: SearchBoxProps) {
 
     const timer = setTimeout(() => {
       searchTitles(trimmed, category)
-        .then((items) => {
-          if (!ignore) setSuggestions({ key, items: items.slice(0, MAX_SUGGESTIONS) })
+        .then(async (results) => {
+          const items = results.slice(0, MAX_SUGGESTIONS)
+          // Series need one extra lookup to know if they're still airing
+          const showIds = items.filter((item) => item.mediaType === 'tv').map((item) => item.id)
+          const airing = showIds.length > 0 ? await getAiringStatuses(showIds) : {}
+          if (!ignore) setSuggestions({ key, items, airing })
         })
         .catch(() => {
-          if (!ignore) setSuggestions({ key, items: [] })
+          if (!ignore) setSuggestions({ key, items: [], airing: {} })
         })
     }, 300)
 
@@ -83,6 +121,7 @@ function SearchBox({ defaultCategory }: SearchBoxProps) {
   }, [expanded])
 
   const items = suggestions?.key === key ? suggestions.items : null
+  const airing = suggestions?.key === key ? suggestions.airing : {}
   const showList = open && ready
 
   function close() {
@@ -176,6 +215,24 @@ function SearchBox({ defaultCategory }: SearchBoxProps) {
             onKeyDown={handleKeyDown}
           />
 
+          <div className="search-cats" role="group" aria-label="Search in">
+            {CATEGORIES.map((value) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={category === value}
+                className={category === value ? 'on' : ''}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => {
+                  setCategory(value)
+                  setActiveIndex(-1)
+                }}
+              >
+                {CATEGORY_LABELS[value]}
+              </button>
+            ))}
+          </div>
+
           <select
             aria-label="Search in"
             value={category}
@@ -226,9 +283,15 @@ function SearchBox({ defaultCategory }: SearchBoxProps) {
                     {thumb ? <img src={thumb} alt="" /> : <span className="suggestion-thumb" />}
                     <span className="suggestion-text">
                       <strong>{item.title}</strong>
-                      <span>
+                      <span className="suggestion-meta">
                         {item.mediaType === 'movie' ? 'Movie' : 'TV'}
                         {item.date ? ` · ${item.date.slice(0, 4)}` : ''}
+                        {(() => {
+                          const status = releaseStatus(item, airing)
+                          return status ? (
+                            <em className={`suggestion-status-tag ${status.tone}`}>{status.label}</em>
+                          ) : null
+                        })()}
                       </span>
                     </span>
                   </li>
